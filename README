@@ -7,9 +7,7 @@ YE REQUIREMENTS
 -
 Python 2.6+ (2.5 will not work)
 BeautifulSoup http://www.crummy.com/software/BeautifulSoup/
-MySQLDb
-MySQL 5.0 and up, maybe 4.x too - who knows?
-
+POSTGRES 9.5+
 
 YE INSTRUCTIONS
 -
@@ -25,4 +23,3 @@ YE POINT OF CONTACT
 -
 Wells Oliver, wells@submute.net
 http://blog.wellsoliver.com
-
