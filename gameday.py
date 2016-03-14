@@ -6,7 +6,6 @@ from time import strptime
 import threading
 import logging
 import datetime
-import MySQLdb
 from ConfigParser import ConfigParser
 
 def csv(value):
@@ -29,7 +28,7 @@ def getMonths(year, start = 1):
 
 def getDays(year, month, start = 1):
     days = []
-    
+
     url = '%syear_%4d/month_%02d/' % (CONSTANTS.BASE, year, month)
     soup = BeautifulSoup(Fetcher.fetch(url))
     for link in soup.findAll('a'):
@@ -57,7 +56,7 @@ class Handler(threading.Thread):
         for link in soup.findAll('a'):
             if link['href'].find('gid_') >= 0:
                 gid = link['href'].rstrip('/')
-                
+
                 g = game.Game(gid)
                 if (g.game_type != self.gametype):
                     continue;
@@ -67,10 +66,10 @@ class Handler(threading.Thread):
 
                 ab = atbats.AtBats(gid, game_id)
                 ab.save()
-                
+
                 chart = hitchart.HitChart(gid, game_id)
                 chart.save()
-                
+
                 batters = players.Batters(gid, game_id)
                 batters.save()
 
@@ -84,7 +83,7 @@ if __name__ == '__main__':
     opt = argparse.ArgumentParser(prog="Py-Gameday",
                         description="Grabs MLB Gameday data",
                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-                    
+
 
     opt.add_argument("-y","--year", default="2015", type=int,
                      required=True,
@@ -95,7 +94,7 @@ if __name__ == '__main__':
     opt.add_argument("-m","--month", default="3", type=csv,
                      metavar='M,M',
                      help="1-2 digit month.",)
-    opt.add_argument("-d","--day", 
+    opt.add_argument("-d","--day",
                      default="1",
                      type=csv,
                      metavar='D,D',
@@ -110,7 +109,7 @@ if __name__ == '__main__':
                      help="R=regular season, S=spring training,\
                            A=allstar game, F=wildcard, D=division series,\
                            L=league series, W=world series.",)
-    opt.add_argument('-v','--version', 
+    opt.add_argument('-v','--version',
                      action='version', version='%(prog)s 1.0.1')
     opt.add_argument("-e","--errors",default="log.txt")
     opt.add_argument("-a","--delta",action="store_true")
@@ -122,17 +121,13 @@ if __name__ == '__main__':
     log = logging.getLogger('gameday')
     startday = 1
     startmonth = 1
-    
+
     # here lies a hack for the strptime thread bug
     foo = strptime('30 Nov 00', '%d %b %y')
-    
+
     # initial DB code
-    try:
-        DB = store.Store()
-    except MySQLdb.Error, e:
-        print 'Database connection problem- did you setup a db.ini? (error: %s)' % e
-        raise SystemExit
-    
+    DB = store.Store()
+
 
     if args.delta:
         sql = 'SELECT year, month, day FROM last WHERE type = %s'
@@ -142,7 +137,7 @@ if __name__ == '__main__':
             raise SystemExit
         else:
             args.year, startmonth, startday = [int(x) for x in res[0]]
-    
+
 
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(lineno)s - %(levelname)s - %(message)s')
 
@@ -152,14 +147,14 @@ if __name__ == '__main__':
     else:
         log.setLevel(logging.ERROR)
         log.addHandler(logging.StreamHandler())
-    
+
     logfilename = './' + args.errors
     filelog = logging.FileHandler(logfilename, 'a')
     filelog.setLevel(logging.ERROR)
     filelog.setFormatter(formatter)
-    
+
     log.addHandler(filelog)
-    
+
     CONSTANTS.BASE = CONSTANTS.BASE.replace('%LEAGUE%', args.league)
     url = '%syear_%4d/' % (CONSTANTS.BASE, args.year)
     try:
@@ -180,32 +175,31 @@ if __name__ == '__main__':
         if args.day is None:
             if startday:
                 days = getDays(args.year, month, startday)
-            else:    
+            else:
                 days = getDays(args.year, month)
         else:
             days = args.day
-        
+
         month_url = '%smonth_%02d' % (url, month)
         month_soup = BeautifulSoup(Fetcher.fetch(month_url))
 
         threads = []
         for day in days:
             day_url = '%s/day_%02d' % (month_url, day)
-            
+
             handler = Handler(day_url, args.gametype)
             handler.start()
             threads.append(handler)
-            
+
         for thread in threads:
             thread.join()
-            
+
         # update last after a day
         sql = 'DELETE FROM last WHERE type = %s;'
         DB.query(sql, [args.league])
-        
+
         sql = 'INSERT INTO last (type, year, month, day) VALUES(%s, %s, %s, %s)'
         DB.query(sql, [args.league, args.year, month, days[-1]])
         DB.save()
 
     DB.finish()
-

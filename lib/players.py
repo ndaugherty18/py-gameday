@@ -4,7 +4,7 @@ from re import search
 from . import *
 
 class Players(list):
-    
+
     def save(self):
         DB = store.Store()
 
@@ -13,9 +13,9 @@ class Players(list):
                 if player[key] == '' or player[key] == 'null':
                     player[key] = None
 
-            sql = 'REPLACE INTO player (%s) VALUES(%s)' % (','.join(player.keys()), ','.join(['%s'] * len(player.keys())))
+            sql = 'INSERT INTO player (%s) VALUES(%s) ON CONFLICT (id) DO NOTHING' % (','.join(player.keys()), ','.join(['%s'] * len(player.keys())))
             DB.query(sql, player.values())
-        
+
         DB.save()
 
     def __init__(self, gid, game_id):
@@ -35,7 +35,7 @@ class Players(list):
                 batter_url = '%s%s' % (url, batter_link['href'])
                 doc = minidom.parseString(Fetcher.fetch(batter_url))
                 element = doc.getElementsByTagName('Player').item(0)
-                
+
                 player = {}
                 for attr in element.attributes.keys():
                     player[attr] = element.attributes[attr].value
@@ -48,8 +48,7 @@ class Pitchers(Players):
         super(Pitchers, self).__init__(gid, game_id)
 
 class Batters(Players):
-    
+
     def __init__(self, gid, game_id):
         self.type = 'BATTER'
         super(Batters, self).__init__(gid, game_id)
-

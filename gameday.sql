@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS `game`;
-CREATE TABLE `game` (
+DROP TABLE IF EXISTS game;
+CREATE TABLE game (
 	game_id varchar(30) not null primary key,
 	game_type char(1) not null,
 	local_game_time varchar(10) default null,
@@ -19,15 +19,15 @@ CREATE TABLE `game` (
 	away_wins int default null,
 	away_loss int default null,
 	status_ind char(1) default null,
-	`date` date default null,
+	date date default null,
 	day varchar(3) default null,
 	stadium_id int default null,
 	stadium_name varchar(40) default null,
 	stadium_location varchar(30) default null
-) ENGINE=InnoDB;
+);
 
-DROP TABLE IF EXISTS `atbat`;
-CREATE TABLE `atbat` (
+DROP TABLE IF EXISTS atbat;
+CREATE TABLE atbat (
 	/* custom fields */
 	game_id varchar(30) not null,
 	half varchar(10) default null,
@@ -45,32 +45,32 @@ CREATE TABLE `atbat` (
 	b_height varchar(5) default null,
 	pitcher int default null,
 	p_throws char(1) default null,
-	des varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci default null,
-	des_es varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci default null,
-	event varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci default null,
-	event2 varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci default null,
-	event3 varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci default null,
-	event4 varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci default null,
-	event_es varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci default null,
-	event2_es varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci default null,
-	event3_es varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci default null,
-	event4_es varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci default null,
+	des varchar(500) null,
+	des_es varchar(500) null,
+	event varchar(200) null,
+	event2 varchar(200) null,
+	event3 varchar(200) null,
+	event4 varchar(200) null,
+	event_es varchar(200) null,
+	event2_es varchar(200) null,
+	event3_es varchar(200) null,
+	event4_es varchar(200) null,
 	home_team_runs int default null,
 	away_team_runs int default null,
 	start_tfs int default null,
 	start_tfs_zulu varchar(25) default null,
 	primary key (game_id, num)
-) ENGINE=InnoDB;
+);
 
-DROP TABLE IF EXISTS `pitch`;
-CREATE TABLE `pitch` (
+DROP TABLE IF EXISTS pitch;
+CREATE TABLE pitch (
 	/* custom fields */
 	game_id varchar(30) not null,
 	num int default null,
 	pitcher int default null,
 	batter int default null,
-	b tinyint default null,
-	s tinyint default null,
+	b int default null,
+	s int default null,
 	/* gameday fields */
 	des varchar(100) default null,
 	id int default null,
@@ -105,13 +105,13 @@ CREATE TABLE `pitch` (
 	type_confidence decimal(7,3) default null,
 	spin_dir decimal(7,3) default null,
 	spin_rate decimal(7,3) default null,
-	zone tinyint default null,
+	zone int default null,
 	primary key(game_id, num, id)
-) Engine=InnoDB;
+);
 
-DROP TABLE IF EXISTS `hitchart`;
-CREATE TABLE `hitchart` (
-	hit_id int unsigned not null auto_increment primary key,
+DROP TABLE IF EXISTS hitchart;
+CREATE TABLE hitchart (
+	hit_id serial primary key,
 	game_id varchar(30) not null,
 	des varchar(25) default null,
 	x decimal(7,3) default null,
@@ -119,16 +119,16 @@ CREATE TABLE `hitchart` (
 	batter int default null,
 	pitcher int default null,
 	type char(1) default null,
-	team enum('H', 'A'),
-	inning tinyint default null
-) ENGINE=InnoDB;
+	team varchar(1),
+	inning int default null
+);
 
-DROP TABLE IF EXISTS `player`;
-CREATE TABLE `player` (
+DROP TABLE IF EXISTS player;
+CREATE TABLE player (
 	team varchar(3) default null,
 	id int primary key,
 	pos varchar(3) default null,
-	type enum('pitcher', 'batter'),
+	type varchar(25),
 	first_name varchar(30) default null,
 	current_position varchar(3) default null,
 	last_name varchar(30) default null,
@@ -138,12 +138,12 @@ CREATE TABLE `player` (
 	bats varchar(3) default null,
 	throws varchar(3) default null,
 	dob varchar(20) default null
-) ENGINE=InnoDB;
+);
 
-DROP TABLE IF EXISTS `last`;
-CREATE TABLE `last` (
+DROP TABLE IF EXISTS last;
+CREATE TABLE last (
 	type varchar(5),
 	year int,
 	month int,
 	day int
-) ENGINE=InnoDB;
+);
